@@ -32,7 +32,6 @@ namespace EtherscanConsole
             string apiendpoint = "https://min-api.cryptocompare.com/data/price";
 
             var connection = ConfigurationManager.ConnectionStrings["mysqlConnection"].ConnectionString;
-            string token = "";
             string tokenprice = "";
 
             MySqlConnection conn = new MySqlConnection(connection);
@@ -80,7 +79,6 @@ namespace EtherscanConsole
             Console.ReadKey();
         }
 
-
         public static void UpdateTokenPrice(string symbol, decimal price)
         {
             string token = "";
@@ -97,7 +95,6 @@ namespace EtherscanConsole
                 cmd.ExecuteNonQuery();
 
                 cmd.Dispose();
-                //dr.Dispose();
                 conn.Dispose();
             }
             catch (Exception ex)
@@ -105,6 +102,7 @@ namespace EtherscanConsole
                 Console.WriteLine(ex);
             }
         }
+
         //Token Model
         public class Token
         {
