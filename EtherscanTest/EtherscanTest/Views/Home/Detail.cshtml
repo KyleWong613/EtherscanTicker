@@ -1,0 +1,41 @@
+﻿@using EtherscanTest.Models;
+@model List<TokenDetail>
+@{
+    ViewBag.Title = "Token Detail";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout.cshtml";
+}
+@if (ViewBag.IsDetail == true)
+{
+    <table id="customers">
+        <tr>
+            <td colspan="2">
+                <b>
+                    @ViewBag.ContractAddress
+                </b>
+            </td>
+        </tr>
+        <tr>
+            <td>Price:</td>
+            <td>$ @ViewBag.Price</td>
+        </tr>
+        <tr>
+            <td>Total Supply:</td>
+            <td>@ViewBag.TotalSupply @ViewBag.Symbol</td>
+
+        </tr>
+        <tr>
+            <td>Total Holders:</td>
+            <td>@ViewBag.Total_Holders</td>
+        </tr>
+        <tr>
+            <td>Name:</td>
+            <td>@ViewBag.Name</td>
+        </tr>
+    </table>
+}
+else
+{
+    <h2>Please Select Token</h2>
+    @ViewBag.TokenSymbols
+}
+
