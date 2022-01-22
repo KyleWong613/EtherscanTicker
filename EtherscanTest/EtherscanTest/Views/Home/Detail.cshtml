@@ -6,7 +6,7 @@
 }
 @if (ViewBag.IsDetail == true)
 {
-    <table id="customers">
+    <table id="tokens">
         <tr>
             <td colspan="2">
                 <b>
@@ -36,6 +36,22 @@
 else
 {
     <h2>Please Select Token</h2>
-    @ViewBag.TokenSymbols
+    int i = 0;
+    foreach (var token in ViewBag.TokenSymbols)
+    {
+        <button class="btn-token" id="btn.@token.@i" value="@token">@token</button> <br /><br />
+        i++;
+    }
 }
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+    $('.btn-token').click(function () {
 
+        var selectedToken = $(this).attr('value');
+
+        var id = "id";
+        value = "?" + id + '=' + selectedToken;
+
+        location.href = window.location.href + value;
+    });
+</script>

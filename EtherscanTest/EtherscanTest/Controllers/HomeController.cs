@@ -6,6 +6,8 @@ using System.Web.Mvc;
 using System.Configuration;
 using MySql.Data.MySqlClient;
 using System.Data;
+using EtherscanTest.Models;
+using Newtonsoft.Json;
 
 namespace EtherscanTest.Controllers
 {
@@ -15,7 +17,68 @@ namespace EtherscanTest.Controllers
         {
             ViewBag.Title = "Home Page";
 
+            var connection = ConfigurationManager.AppSettings["mysqlConnection"].ToString();
+
+            MySqlConnection conn = new MySqlConnection(connection);
+            try
+            {
+                conn.Open();
+
+                //Retrieve all token details from db descending order based on Total Supply
+                string sql = "SELECT * FROM token order by total_supply desc";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                var res = new List<EtherscanTest.Models.TokenDetail>();
+
+                MySqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
+                {
+                    var dt = new DataTable();
+                    dt.Load(dr);
+                    int i = 1;
+                    foreach (DataRow record in dt.Rows)
+                    {
+                        var td = new Models.TokenDetail();
+                        td.RankID = i;
+                        td.contract_address = record["contract_address"].ToString();
+                        td.symbol = record["symbol"].ToString();
+                        td.price = record["Price"].ToString();
+                        td.total_supply = record["Total_supply"].ToString();
+                        td.total_holders = record["Total_holders"].ToString();
+                        td.name = record["name"].ToString();
+                        res.Add(td);
+                        i++;
+                    }
+                    ViewBag.TD = res;
+                }
+
+                //retrieve sum of all token supply
+                string sql2 = "select SUM(total_supply) AS 'total_supply' from token";
+                MySqlCommand cmd2 = new MySqlCommand(sql2, conn);
+                MySqlDataReader dr2 = cmd2.ExecuteReader();
+                if (dr2.HasRows)
+                {
+                    var dt2 = new DataTable();
+                    dt2.Load(dr2);
+                    foreach (DataRow record in dt2.Rows)
+                    {
+                        var td = new Models.TokenDetail();
+
+                        td.allsupply = Convert.ToDecimal(record["total_supply"]);
+                        ViewBag.AllSupply = td.allsupply;
+                    }
+                }
+
+                dr.Dispose();
+                dr2.Dispose();
+                cmd.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+           
             return View();
+
         }
 
         public ActionResult Detail()
@@ -42,7 +105,7 @@ namespace EtherscanTest.Controllers
             {
                 conn.Open();
 
-                //Retrieve all token details from db
+                //Retrieve all token details from db based on symbol value
                 string sql = "select * from token WHERE symbol=@symbol";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@symbol", id);
@@ -76,7 +139,8 @@ namespace EtherscanTest.Controllers
                 //select all symbols from db
                 string sql2 = "select symbol from token";
                 MySqlCommand cmd2 = new MySqlCommand(sql2, conn);
-                string[] tokensymbols = { };
+                List<string> tokensymbols = new List<string>();
+
                 MySqlDataReader dr2 = cmd2.ExecuteReader();
                 if (dr2.HasRows)
                 {
@@ -86,17 +150,13 @@ namespace EtherscanTest.Controllers
                     var tokensymbol = new Models.TokenSymbols();
                     foreach (DataRow record in dt2.Rows)
                     {
-                        tokensymbols[i] = record["symbol"].ToString();
-                        
+                        tokensymbols.Add(record["symbol"].ToString());
                     }
                     ViewBag.TokenSymbols = tokensymbols;
                 }
                 dr2.Dispose();
                 cmd2.Dispose();
                 conn.Close();
-
-
-
             }
             catch (Exception e)
             {
@@ -107,5 +167,56 @@ namespace EtherscanTest.Controllers
             return View();
         }
 
+        public string GetPieChartData(List<string> gData)
+        {
+            List<TokenPieChart> t = new List<TokenPieChart>();
+
+            var connection = ConfigurationManager.AppSettings["mysqlConnection"].ToString();
+
+            MySqlConnection conn = new MySqlConnection(connection);
+            try
+            {
+                conn.Open();
+
+                //Retrieve name and total supply of token
+                string sql = "SELECT name, total_supply FROM token order by total_supply desc";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+
+                MySqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
+                {
+                    var dt = new DataTable();
+                    dt.Load(dr);
+                    foreach (DataRow record in dt.Rows)
+                    {
+                        var td = new Models.TokenPieChart();
+                        td.total_supply = record["Total_supply"].ToString();
+                        td.name = record["name"].ToString();
+                        t.Add(td);
+                    }
+                }
+
+                dr.Dispose();
+                cmd.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            var items = JsonConvert.SerializeObject(t);
+
+            return items;
+        }
+        public bool UpdateTokenData(string name, string symbol , string cont_add, string tot_supply, string tot_holders)
+        {
+            bool isSuccess = false;
+
+
+
+
+
+
+            return isSuccess;
+        }
     }
 }
