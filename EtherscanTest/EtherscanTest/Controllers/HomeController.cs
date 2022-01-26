@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using System.Configuration;
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.IO;
 using EtherscanTest.Models;
 using Newtonsoft.Json;
 
@@ -207,16 +208,104 @@ namespace EtherscanTest.Controllers
 
             return items;
         }
-        public bool UpdateTokenData(string name, string symbol , string cont_add, string tot_supply, string tot_holders)
+
+        public bool UpdateTokenData()
         {
             bool isSuccess = false;
 
+            string name = "";
+            string symbol = "";
+            string cont_add = "";
+            string tot_supply = "";
+            string tot_holders = "";
 
+            string json;
+            Stream req = Request.InputStream;
+            req.Seek(0, SeekOrigin.Begin);
+            using (var sr = new StreamReader(req))
+            {
+                json = sr.ReadToEnd();
+            }
+            TokenDetail tokendet = JsonConvert.DeserializeObject<TokenDetail>(json);
 
+            name = tokendet.name;
+            symbol = tokendet.symbol;
+            cont_add = tokendet.contract_address;
+            tot_supply = tokendet.total_supply;
+            tot_holders = tokendet.total_holders;
 
+            try
+            {
+                var connection = ConfigurationManager.AppSettings["mysqlConnection"].ToString();
+                MySqlConnection conn = new MySqlConnection(connection);
+                conn.Open();
 
+                //Check if token exists in db
+                string sql = "SELECT symbol FROM token where symbol=@symbol";
+
+                string symbolexists = "";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@symbol", symbol);
+
+                MySqlDataReader dr = cmd.ExecuteReader();
+                if (dr.HasRows)
+                {
+                    var dt = new DataTable();
+                    dt.Load(dr);
+                    foreach (DataRow record in dt.Rows)
+                    {
+                        symbolexists = record["symbol"].ToString();
+                    }
+                }
+                cmd.Dispose();
+                conn.Close();
+                conn.Dispose();
+
+                if (symbolexists != "")
+                {
+                    MySqlConnection conn2 = new MySqlConnection(connection);
+                    conn2.Open();
+                    //Retrieve all token details from db based on symbol value
+                    string sql2 = "update token SET name=@name , contract_address=@contract_address, total_supply=@total_supply, total_holders=@total_holders where symbol=@symbol";
+                    MySqlCommand cmd2 = new MySqlCommand(sql2, conn2);
+                    cmd2.Parameters.AddWithValue("@name", name);
+                    cmd2.Parameters.AddWithValue("@symbol", symbol);
+                    cmd2.Parameters.AddWithValue("@contract_address", cont_add);
+                    cmd2.Parameters.AddWithValue("@total_supply", tot_supply);
+                    cmd2.Parameters.AddWithValue("@total_holders", tot_holders);
+
+                    cmd2.ExecuteNonQuery();
+
+                    cmd2.Dispose();
+                    conn2.Close();
+                    conn2.Dispose();
+                }
+                else
+                {
+                    MySqlConnection conn3 = new MySqlConnection(connection);
+                    conn3.Open();
+                    // if token not exists in db, insert new token into db
+                    string sql3 = "INSERT INTO token (symbol, name, total_supply, contract_address, total_holders) Values(@symbol, @name, @total_supply , @contract_address, @total_holders)";
+                    MySqlCommand cmd3 = new MySqlCommand(sql3, conn3);
+                    cmd3.Parameters.AddWithValue("@name", name);
+                    cmd3.Parameters.AddWithValue("@symbol", symbol);
+                    cmd3.Parameters.AddWithValue("@contract_address", cont_add);
+                    cmd3.Parameters.AddWithValue("@total_supply", tot_supply);
+                    cmd3.Parameters.AddWithValue("@total_holders", tot_holders);
+
+                    cmd3.ExecuteNonQuery();
+                    cmd3.Dispose();
+                    conn3.Close();
+                    conn3.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
 
             return isSuccess;
+
         }
     }
 }

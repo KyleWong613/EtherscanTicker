@@ -20,30 +20,53 @@ textarea {
     border-color: #eee !important;
 }
 
-#customers {
+#tokens {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
     margin-top: 50px;
 }
 
-    #customers td, #customers th {
-        border: 1px solid #ddd;
+    #tokens td, #customers th {
+        border: 1px black solid;
         padding: 8px;
     }
 
-    #customers tr:nth-child(even) {
+    #tokens tr:nth-child(even) {
         background-color: #f2f2f2;
     }
 
-    #customers tr:hover {
+    #tokens tr:hover {
         background-color: #ddd;
     }
 
-    #customers th {
+    #tokens th {
         padding-top: 12px;
         padding-bottom: 12px;
-        text-align: left;
+        text-align: center;
         background-color: #f2f2f2;
-        color: white;
+        color: black;
+        border: 1px black solid;
     }
+.f-left {
+    float: left;
+}
+.f-right {
+    float: right;
+}
+.w280 {
+    width: 280px;
+}
+.btn-blue {
+    background-color: Highlight;
+}
+.btn-green {
+    background-color: limegreen;
+}
+.btn-common {
+    color: white !important;
+    border: 1px solid transparent;
+    margin-right: 5px;
+    margin-top: 5px;
+    border-radius: 5px 5px 5px 5px;
+}
