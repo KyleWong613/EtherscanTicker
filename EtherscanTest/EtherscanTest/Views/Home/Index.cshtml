@@ -66,9 +66,7 @@
     <table id="tokens">
         <tr>
             <th>
-                <b>
-                    Rank
-                </b>
+                <b>Rank</b>
             </th>
             <th>
                 <b>
@@ -109,17 +107,17 @@
             int i = 1;
 
             <tr>
-                <td>@token.RankID</td>
+                <td>@token.ID</td>
                 <td><a href="@Url.Action("Detail", "Home")?id=@token.symbol">@token.symbol</a></td>
                 <td>@token.name</td>
                 <td>@token.contract_address</td>
-                <td>@token.total_holders</td>
-                <td>@token.total_supply</td>
+                <td>@token.TotalHolders</td>
+                <td>@token.TotalSupply</td>
                 <td>
                     @{
                         decimal num1, num2, divide;
                         decimal asa = ViewBag.AllSupply;
-                        num1 = Convert.ToDecimal(token.total_supply);
+                        num1 = Convert.ToDecimal(token.TotalSupply);
                         num2 = Convert.ToInt32(asa);
                         divide = Math.Round((num1 / num2) * 100, 5);
                     }
