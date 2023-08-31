@@ -179,7 +179,24 @@
     });
     //save new data into db
     $('.btn-save').click(function () {
-
+        let formData = {
+            InputName: $(".inp-name").val(),
+            Symbol: $(".inp-sym").val(),
+            Address: $(".inp-add").val(),
+            Supply: $(".inp-sup").val(),
+            Holders: $(".inp-hold").val()
+        }
+        $.ajax({
+            url: "/TokensList/SaveToken",
+            type: "POST",
+            formdata: formData,
+            success: function (response) {
+                alert("Saved Token Successfully!");
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
 
     });
    
