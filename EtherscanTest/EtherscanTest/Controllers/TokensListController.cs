@@ -14,6 +14,12 @@ using EtherscanTest.Helpers;
 using EtherscanTest.Helpers.Interfaces;
 using EtherscanTest.DTO;
 using System.Net;
+using System.Threading.Tasks;
+using System.Security.Policy;
+using MySqlX.XDevAPI.Common;
+using System.Web.Http.Results;
+using System.Security.Cryptography.X509Certificates;
+using Org.BouncyCastle.Crypto.Tls;
 
 namespace EtherscanTest.Controllers
 {
@@ -39,23 +45,27 @@ namespace EtherscanTest.Controllers
         }
 
         [HttpGet]
-        public string GetTokens()
+        public async Task<JsonResult> GetTokens()
         {
             string URL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
-            string res = "";
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Add("X-CMC_PRO_API_KEY", API_KEY);
+            string res = string.Empty; 
+             
 
-                var response = client.GetAsync(URL).GetAwaiter().GetResult();
+            using (HttpClient client = new HttpClient())
+            {
+                System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+                client.BaseAddress = new Uri(URL);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Add("X-CMC_PRO_API_KEY", API_KEY);
+                HttpResponseMessage response = await client.GetAsync(URL);
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseContent = response.Content;
-                    return responseContent.ReadAsStringAsync().GetAwaiter().GetResult();
+                    res = await response.Content.ReadAsStringAsync();
                 }
-            } 
+            }
 
-            return res;
+            return Json(Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(res));
 
         }
 
