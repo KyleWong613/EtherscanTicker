@@ -44,13 +44,14 @@ namespace EtherscanTest.Helpers
                         dto.ID = dr.GetInt32(0);
                         dto.symbol = dr.GetString(1);
                         dto.price = dr.GetString(2);
-                        dto.TotalSupply = dr.GetDecimal(3);
-                        dto.TotalHolders = dr.GetDecimal(4);
-                        dto.name = dr.GetString(5);
+                        dto.ContractAddress = dr.GetString(3);
+                        dto.TotalSupply = dr.GetDecimal(4);
+                        dto.TotalHolders = dr.GetDecimal(5);
+                        dto.name = dr.GetString(6);
 
                         Tokens.Add(dto);
                         //display retrieved record
-                        Console.WriteLine("{0},{1},{2},{3},{4},{5}", dto.ID.ToString(), dto.symbol, dto.price, dto.TotalSupply, dto.TotalHolders, dto.name);
+                        Console.WriteLine("{0},{1},{2},{3},{4},{5}", dto.ID.ToString(), dto.symbol, dto.price, dto.ContractAddress, dto.TotalSupply, dto.TotalHolders, dto.name);
                     }
                 }
                 else

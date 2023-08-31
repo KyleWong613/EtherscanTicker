@@ -17,6 +17,7 @@ CREATE TABLE Token(
 	ID int IDENTITY(1,1),
 	symbol [varchar](255) NOT NULL,
 	Price [varchar](255) NULL,
+	ContractAddress [varchar](255) NULL,
 	TotalSupply [numeric](19,0) NOT NULL,
 	TotalHolders [numeric](19,0) NOT NULL,
 	Name [varchar](255) NOT NULL,

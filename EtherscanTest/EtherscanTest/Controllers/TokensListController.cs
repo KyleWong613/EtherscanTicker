@@ -13,121 +13,50 @@ using System.Net.Http;
 using EtherscanTest.Helpers;
 using EtherscanTest.Helpers.Interfaces;
 using EtherscanTest.DTO;
+using System.Net;
 
 namespace EtherscanTest.Controllers
 {
 
-    public class HomeController : Controller
+    public class TokensListController : Controller
     {
         private string dbtype = ConfigurationManager.AppSettings["sqltype"].ToString();
         private ITokenService itokenService;
         private TokenService tokenService;
+        private static string API_KEY = "ddcd29a9-e00d-4eb0-8625-3cd8f257c7d5";
 
-        public HomeController() : this(new TokenService())
+        public TokensListController() : this(new TokenService())
         {
         }
-        public HomeController(ITokenService tokenService)
+        public TokensListController(ITokenService tokenService)
         {
             this.itokenService = tokenService;
         }
 
-        public HomeController(TokenService tokenService)
+        public TokensListController(TokenService tokenService)
         {
             this.tokenService = tokenService;
         }
 
-        public ActionResult Index()
+        [HttpGet]
+        public string GetTokens()
         {
-            ViewBag.Title = "Home Page";
-            var connection = "";
-            List<TokenDTO> tokens = new List<TokenDTO>();
-            if (dbtype == "mssql")
+            string URL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
+            string res = "";
+            using (var client = new HttpClient())
             {
-                connection = ConfigurationManager.AppSettings["mssqlConnection"].ToString();
-                List<TokenDTO> tokenList = tokenService.GetTokenList(tokens);
-                var res = new List<EtherscanTest.DTO.TokenDTO>();
-                int i = 1;
+                client.DefaultRequestHeaders.Add("X-CMC_PRO_API_KEY", API_KEY);
 
-                foreach (TokenDTO allTokens in tokenList)
+                var response = client.GetAsync(URL).GetAwaiter().GetResult();
+                if (response.IsSuccessStatusCode)
                 {
-                    var td = new DTO.TokenDTO();
-                    td.ID = i;
-                    td.ContractAddress = allTokens.ContractAddress ?? "";
-                    td.symbol = allTokens.symbol;
-                    td.price = allTokens.price;
-                    td.TotalSupply = allTokens.TotalSupply; 
-                    td.TotalHolders = allTokens.TotalHolders;
-                    td.name = allTokens.name;
-                    res.Add(td);
-                    ViewBag.AllSupply = td.TotalSupply;
-                    i++;
+                    var responseContent = response.Content;
+                    return responseContent.ReadAsStringAsync().GetAwaiter().GetResult();
                 }
+            } 
 
-                ViewBag.TD = res;
-            }  
-            else
-            {
-                connection = ConfigurationManager.AppSettings["mysqlConnection"].ToString();
-                MySqlConnection conn = new MySqlConnection(connection);
-                try
-                {
-                    conn.Open();
+            return res;
 
-                    //Retrieve all token details from db descending order based on Total Supply
-                    string sql = "SELECT * FROM token order by total_supply desc";
-                    MySqlCommand cmd = new MySqlCommand(sql, conn);
-                    var res = new List<EtherscanTest.Models.TokenDetail>();
-
-                    MySqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.HasRows)
-                    {
-                        var dt = new DataTable();
-                        dt.Load(dr);
-                        int i = 1;
-                        foreach (DataRow record in dt.Rows)
-                        {
-                            var td = new Models.TokenDetail();
-                            td.ID = i;
-                            td.contract_address = record["contract_address"].ToString();
-                            td.symbol = record["symbol"].ToString();
-                            td.price = record["Price"].ToString();
-                            td.total_supply = record["Total_supply"].ToString();
-                            td.total_holders = record["Total_holders"].ToString();
-                            td.name = record["name"].ToString();
-                            res.Add(td);
-                            i++;
-                        }
-                        ViewBag.TD = res;
-                    }
-
-                    //retrieve sum of all token supply
-                    string sql2 = "select SUM(TotalSupply) AS 'TotalSupply' from token";
-                    MySqlCommand cmd2 = new MySqlCommand(sql2, conn);
-                    MySqlDataReader dr2 = cmd2.ExecuteReader();
-                    if (dr2.HasRows)
-                    {
-                        var dt2 = new DataTable();
-                        dt2.Load(dr2);
-                        foreach (DataRow record in dt2.Rows)
-                        {
-                            var td = new Models.TokenDetail();
-
-                            td.allsupply = Convert.ToDecimal(record["total_supply"]);
-                            ViewBag.AllSupply = td.allsupply;
-                        }
-                    }
-
-                    dr.Dispose();
-                    dr2.Dispose();
-                    cmd.Dispose();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                }
-            }
-            
-            return View();
         }
 
         public ActionResult Detail()

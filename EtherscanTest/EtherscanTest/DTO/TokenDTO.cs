@@ -12,8 +12,8 @@ namespace EtherscanTest.DTO
         public List<TokenDetail> tokenDetail { get; set; }
 
         public int ID { get; set; }
-        public string contract_address { get; set; }
         public string price { get; set; }
+        public string ContractAddress { get; set; }
         public decimal TotalSupply { get; set; }
         public decimal TotalHolders { get; set; }
         public string name { get; set; }

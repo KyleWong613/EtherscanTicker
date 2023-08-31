@@ -7,81 +7,98 @@
 <div>
     <br />
 
-    <h3>Save / Update Token</h3>
-    <div style="font-family: Corbel; font-size: small ;text-align:center " class="row">
+    <div class="row">
+        <div class="col-4">
+            <div style="font-family: Corbel; font-size: small ;text-align:center ">
+                <div class="w280 col-lg-6">
+                    <h3>Save / Update Token</h3>
+                    <table>
+                        <tr>
+                            <td>
+                                Name
+                            </td>
+                            <td>
+                                <input class="inp-name" placeholder="Name" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Symbol
+                            </td>
 
-        <div class="w280 col-lg-6">
-            <table>
-                <tr>
-                    <td>
-                        Name
-                    </td>
-                    <td>
-                        <input class="inp-name" placeholder="Name" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Symbol
-                    </td>
+                            <td>
+                                <input class="inp-sym" placeholder="Symbol" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Contract Address
+                            </td>
 
-                    <td>
-                        <input class="inp-sym" placeholder="Symbol" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Contract Address
-                    </td>
+                            <td>
+                                <input class="inp-add" placeholder="Contract Address" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Total Supply
+                            </td>
+                            <td>
+                                <input class="inp-sup" placeholder="Total Supply " />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Total Holders
+                            </td>
 
-                    <td>
-                        <input class="inp-add" placeholder="Contract Address" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Total Supply
-                    </td>
-                    <td>
-                        <input class="inp-sup" placeholder="Total Supply " />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Total Holders
-                    </td>
+                            <td>
+                                <input class="inp-hold" placeholder="Total Holders" />
+                            </td>
+                        </tr>
+                    </table>
+                    <button class="btn-common btn-reset f-right btn-green">Reset</button>
+                    <button class="btn-common btn-save f-right btn-blue">Save</button>
+                </div>
 
-                    <td>
-                        <input class="inp-hold" placeholder="Total Holders" />
-                    </td>
-                </tr>
-            </table>
-            <button class="btn-common btn-reset f-right btn-green">Reset</button>
-            <button class="btn-common btn-save f-right btn-blue">Save</button>
+            </div>
         </div>
-        <div class="col-lg-6"">
-            <canvas id="myChart" style="padding: 0;margin: auto;display: block; "> </canvas>
+        <div class="col-4">
+            <h3>Add Token</h3>
+
+            <div style="font-family: Corbel; font-size: small ;text-align:center ">
+                <div class="w280 col-lg-6">
+                    <table>
+                        <tr>
+                            <td>
+                                Name
+                            </td>
+                            <td>
+                                <input class="inp-name" placeholder="Name" />
+                            </td>
+                        </tr>
+                    </table>
+                    <button class="btn-common btn-add-reset f-right btn-green">Reset</button>
+                    <button class="btn-common btn-add-token f-right btn-blue">Add</button>
+                </div>
+            </div>
         </div>
     </div>
+
+
     <table id="tokens">
         <tr>
             <th>
                 <b>Rank</b>
             </th>
             <th>
-                <b>
-                    Symbol
-                </b>
+                <b>Symbol </b>
             </th>
             <th>
-                <b>
-                    Name
-                </b>
+                <b> Name</b>
             </th>
             <th>
-                <b>
-                    Contract Address
-                </b>
+                <b>Contract Address </b>
             </th>
             <th>
                 <b>
@@ -110,7 +127,7 @@
                 <td>@token.ID</td>
                 <td><a href="@Url.Action("Detail", "Home")?id=@token.symbol">@token.symbol</a></td>
                 <td>@token.name</td>
-                <td>@token.contract_address</td>
+                <td>@token.ContractAddress</td>
                 <td>@token.TotalHolders</td>
                 <td>@token.TotalSupply</td>
                 <td>
@@ -129,6 +146,11 @@
         }
 
     </table>
+
+
+    <div class="col-lg-6">
+        <canvas id="myChart" style="padding: 0;margin: auto;display: block; "> </canvas>
+    </div>
 </div>
 <script src="/js/Chart.min.js" type="text/javascript"></script>
 <script src="/js/Chart.js" type="text/javascript"></script>
@@ -142,11 +164,25 @@
         $(".inp-sup").val("");
         $(".inp-hold").val("");
     });
+    //Add new token from coinmarketcap API
+    $('.btn-add-token').click(function () {
+        $.ajax({
+            url: "/TokensList/GetTokens",
+            type: "GET",
+            success: function (response) {
+                alert("got data Successfully!");
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
+    });
     //save new data into db
-    $('.btn-save ').click(function () {
+    $('.btn-save').click(function () {
 
 
     });
+   
 
     // initialize chart.js
     $(document).ready(function () {
