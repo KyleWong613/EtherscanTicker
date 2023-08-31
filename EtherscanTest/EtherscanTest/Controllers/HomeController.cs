@@ -136,6 +136,7 @@ namespace EtherscanTest.Controllers
 
             string id = "";
             var connection = "";
+            List<TokenDTO> token = new List<TokenDTO>();
 
             if (Request.QueryString["id"] != null)
             {
@@ -145,13 +146,29 @@ namespace EtherscanTest.Controllers
             else
             {
                 ViewBag.IsDetail = false;
+                RedirectToAction("Index");
             }
-
             if (dbtype == "mssql")
             {
                 connection = ConfigurationManager.AppSettings["mssqlConnection"].ToString();
-                string sql = "select * from token WHERE symbol=@symbol";
+                List<TokenDTO> tokenList = tokenService.GetTokenByID(token, id);
+                var res = new List<EtherscanTest.DTO.TokenDTO>();
+                
+                var td = new DTO.TokenDTO();
+                td.ID = tokenList[0].ID;
+                td.ContractAddress = tokenList[0].ContractAddress ?? "";
+                td.symbol = tokenList[0].symbol;
+                td.price = tokenList[0].price;
+                td.TotalSupply = tokenList[0].TotalSupply;
+                td.TotalHolders = tokenList[0].TotalHolders;
+                td.name = tokenList[0].name;
 
+                ViewBag.ContractAddress = td.ContractAddress;
+                ViewBag.Symbol = td.symbol;
+                ViewBag.Price = td.price;
+                ViewBag.TotalSupply = td.TotalSupply;
+                ViewBag.Total_Holders = td.TotalHolders;
+                ViewBag.Name = td.name;
             }
             else
             {

@@ -83,7 +83,7 @@ namespace EtherscanTest.Controllers
 
 
 
-            return RedirectToAction("Register");
+            return RedirectToAction("Index");
 
         }
     }
