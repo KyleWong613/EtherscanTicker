@@ -23,7 +23,6 @@ using Org.BouncyCastle.Crypto.Tls;
 
 namespace EtherscanTest.Controllers
 {
-
     public class TokensListController : Controller
     {
         private string dbtype = ConfigurationManager.AppSettings["sqltype"].ToString();
@@ -48,8 +47,8 @@ namespace EtherscanTest.Controllers
         public async Task<JsonResult> GetTokens()
         {
             string URL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
-            string res = string.Empty; 
-             
+            string res = string.Empty;
+
 
             using (HttpClient client = new HttpClient())
             {
@@ -70,99 +69,22 @@ namespace EtherscanTest.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveToken()
+        public ActionResult SaveToken(TokenDTO NewToken)
         {
-
-            string id = "";
-            var connection = "";
-
-            if (Request.QueryString["id"] != null)
+            var user = new TokenDTO()
             {
-                id = Request.QueryString["id"];
-                ViewBag.IsDetail = true;
-            }
-            else
-            {
-                ViewBag.IsDetail = false;
-            }
-
-            if (dbtype == "mssql")
-            {
-                connection = ConfigurationManager.AppSettings["mssqlConnection"].ToString();
-                string sql = "select * from token WHERE symbol=@symbol";
-
-            }
-            else
-            {
-                connection = ConfigurationManager.AppSettings["mysqlConnection"].ToString();
-                MySqlConnection conn = new MySqlConnection(connection);
-                try
-                {
-                    conn.Open();
-
-                    //Retrieve all token details from db based on symbol value
-                    string sql = "select * from token WHERE symbol=@symbol";
-                    MySqlCommand cmd = new MySqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@symbol", id);
-
-                    MySqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.HasRows)
-                    {
-                        var dt = new DataTable();
-                        dt.Load(dr);
-                        var tokendetail = new Models.TokenDetail();
-                        foreach (DataRow record in dt.Rows)
-                        {
-                            tokendetail.contract_address = record["contract_address"].ToString();
-                            tokendetail.symbol = record["symbol"].ToString();
-                            tokendetail.price = record["Price"].ToString();
-                            tokendetail.total_supply = record["Total_supply"].ToString();
-                            tokendetail.total_holders = record["Total_holders"].ToString();
-                            tokendetail.name = record["name"].ToString();
-                        }
-                        ViewBag.ContractAddress = tokendetail.contract_address;
-                        ViewBag.Symbol = tokendetail.symbol;
-                        ViewBag.Price = tokendetail.price;
-                        ViewBag.TotalSupply = tokendetail.total_supply;
-                        ViewBag.Total_Holders = tokendetail.total_holders;
-                        ViewBag.Name = tokendetail.name;
-                    }
-                    dr.Dispose();
-                    cmd.Dispose();
+                symbol = NewToken.symbol,
+                price = NewToken.price,
+                ContractAddress = NewToken.ContractAddress,
+                TotalSupply = NewToken.TotalSupply,
+                TotalHolders = NewToken.TotalHolders,
+                name = NewToken.name,
+            };
 
 
-                    //select all symbols from db
-                    string sql2 = "select symbol from token";
-                    MySqlCommand cmd2 = new MySqlCommand(sql2, conn);
-                    List<string> tokensymbols = new List<string>();
 
-                    MySqlDataReader dr2 = cmd2.ExecuteReader();
-                    if (dr2.HasRows)
-                    {
-                        var dt2 = new DataTable();
-                        dt2.Load(dr2);
-                        int i = 0;
-                        var tokensymbol = new Models.TokenSymbols();
-                        foreach (DataRow record in dt2.Rows)
-                        {
-                            tokensymbols.Add(record["symbol"].ToString());
-                        }
-                        ViewBag.TokenSymbols = tokensymbols;
-                    }
-                    dr2.Dispose();
-                    cmd2.Dispose();
-                    conn.Close();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                }
-                conn.Close();
-                conn.Dispose();
-            }
-            
-            return View();
+            return RedirectToAction("Register");
+
         }
-
     }
 }
